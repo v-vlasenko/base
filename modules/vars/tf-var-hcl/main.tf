@@ -9,7 +9,7 @@ variable "locations" {
     gw_db    = string
   }))
 }
-
+#ok
 variable "number-hcl" {
   type = number
 }
