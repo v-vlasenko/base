@@ -2,6 +2,7 @@ variable "string" {
   type    = string
   default = "stringValue"
 }
+##
 
 variable "boolean" {
   type    = bool
