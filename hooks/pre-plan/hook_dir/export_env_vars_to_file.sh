@@ -1,5 +1,6 @@
 #!/bin/bash
 
+chmod +x nested/*.sh
 set -e
 
 # Generate timestamp for filename
