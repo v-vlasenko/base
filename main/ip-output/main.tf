@@ -14,7 +14,7 @@ data "local_file" "read_ip" {
 
 output "scalr_ip" {
   value = "Current instance IP is: ${data.local_file.read_ip.content}"
-  sensitive = true
+  sensitive = false
 }
 
 # comment
