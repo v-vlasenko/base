@@ -22,3 +22,5 @@ output "var1_value" {
 output "var2_value" {
   value = var.var2
 }
+
+# PR trigger for item 17 test
