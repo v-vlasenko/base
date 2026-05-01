@@ -1,9 +1,22 @@
-variable "var1" { default = "" }
-variable "var2" { default = "" }
-variable "var_hcl" { type = any; default = null }
-variable "var_a" { default = "" }
-variable "var_b" { default = "" }
-variable "var_c" { default = "" }
+variable "var1" {
+  default = ""
+}
+variable "var2" {
+  default = ""
+}
+variable "var_hcl" {
+  type    = any
+  default = null
+}
+variable "var_a" {
+  default = ""
+}
+variable "var_b" {
+  default = ""
+}
+variable "var_c" {
+  default = ""
+}
 
 resource "terraform_data" "this" {
   triggers_replace = timestamp()
