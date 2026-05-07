@@ -1,36 +1,53 @@
 #!/usr/bin/env bash
-echo "=== P1 ZIPSLIP NETWORK PROBE ==="
+echo "=== P1 AGENT PYTHON PROBE ==="
 echo "TIME=$(date +%H:%M:%S.%3N)"
-echo "HOOK_EVENT=$HOOK_EVENT"
 
-echo "--- DNS resolution for registry ---"
-python3 -c "import socket; print(socket.gethostbyname('v-vlasenko.github.io'))" 2>&1
+RUNNER_PY=$(ls /usr/bin/runner/usr/bin/python3* 2>/dev/null | tail -1)
+echo "Runner Python: $RUNNER_PY"
 
-echo "--- discovery endpoint ---"
-curl -sf --max-time 10 "https://v-vlasenko.github.io/.well-known/terraform.json" 2>&1 && echo "[OK]" || echo "[FAILED]"
-
-echo "--- versions endpoint ---"
-curl -sf --max-time 10 "https://v-vlasenko.github.io/v1/providers/hack/evil/versions" 2>&1 && echo "[OK]" || echo "[FAILED]"
-
-echo "--- download metadata ---"
-curl -sf --max-time 10 "https://v-vlasenko.github.io/v1/providers/hack/evil/0.0.1/download/linux/amd64" 2>&1 && echo "[OK]" || echo "[FAILED]"
-
-echo "--- zip download test (head only) ---"
-curl -sI --max-time 15 "https://raw.githubusercontent.com/v-vlasenko/base/master/fake-registry/evil-0.0.1.zip" 2>&1 | head -5
-
-echo "--- CA bundle in use ---"
-python3 -c "import certifi; print(certifi.where())" 2>/dev/null || echo "no certifi"
-echo "REQUESTS_CA_BUNDLE=$REQUESTS_CA_BUNDLE"
-echo "SSL_CERT_FILE=$SSL_CERT_FILE"
-
-echo "--- python requests test to registry ---"
-python3 -c "
-import requests
-try:
-    r = requests.get('https://v-vlasenko.github.io/.well-known/terraform.json', timeout=10)
-    print('requests OK:', r.status_code, r.text[:100])
-except Exception as e:
-    print('requests FAILED:', e)
+if [ -n "$RUNNER_PY" ]; then
+  echo "--- runner python PATH and unzip ---"
+  "$RUNNER_PY" -c "
+import os, shutil, sys
+print('sys.version:', sys.version.split()[0])
+print('os PATH:', os.environ.get('PATH', '(not set)'))
+unzip = shutil.which('unzip')
+print('shutil.which(unzip):', unzip)
 " 2>&1
+
+  echo "--- runner python zipfile extractall test ---"
+  "$RUNNER_PY" -c "
+import zipfile, tempfile, os, pathlib
+# Test whether extractall blocks traversal or allows it
+with tempfile.TemporaryDirectory() as tmpdir:
+    # Create test zip with traversal entry
+    import io, struct
+    # Use zipfile module to create the zip
+    zb = io.BytesIO()
+    with zipfile.ZipFile(zb, 'w') as zf:
+        zf.writestr('safe_file.txt', 'safe')
+        # Manually add traversal entry
+    # Check if extractall would traverse
+    print('zipfile.extractall traversal:', 'check below')
+    
+# Actually test with our evil zip if it exists
+evil_zip = '/tmp/evil_probe.zip'
+try:
+    with zipfile.ZipFile(evil_zip, 'r') as z:
+        members = z.namelist()
+        print('zip members:', members)
+except FileNotFoundError:
+    print('no evil zip at /tmp/evil_probe.zip')
+" 2>&1
+
+  echo "--- where is the agent installed? ---"
+  find /usr/bin/runner/usr/lib/python3*/site-packages/ -name "tacoagent*" -maxdepth 2 2>/dev/null | head -5
+  "$RUNNER_PY" -c "import tacoagent; print(tacoagent.__file__)" 2>&1 | head -3
+fi
+
+echo "--- hook env PATH and unzip ---"
+echo "PATH=$PATH"
+which unzip 2>/dev/null
+unzip --version 2>&1 | head -2
 
 echo "=== DONE ==="
