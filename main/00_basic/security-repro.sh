@@ -1,36 +1,32 @@
 #!/usr/bin/env bash
-echo "=== P1 TUNNEL/PROXY PROBE ==="
+echo "=== P1 ZIPSLIP TRAVERSAL CHECK ==="
+echo "TIME=$(date +%H:%M:%S.%3N)"
+echo "HOOK_EVENT=$HOOK_EVENT"
+echo "PWD=$(pwd)"
 
-echo "--- tunneling tools ---"
-which ngrok 2>/dev/null && ngrok version 2>/dev/null | head -1 || echo "ngrok: not found"
-which cloudflared 2>/dev/null || echo "cloudflared: not found"
-which localtunnel 2>/dev/null || echo "localtunnel: not found"
-which bore 2>/dev/null || echo "bore: not found"
-which frpc 2>/dev/null || echo "frpc: not found"
+echo "--- check /opt/providers/ for traversal marker ---"
+if [ -f "/opt/providers/zipslip_CONFIRMED.txt" ]; then
+  echo "ZIPSLIP CONFIRMED: /opt/providers/zipslip_CONFIRMED.txt EXISTS"
+  cat /opt/providers/zipslip_CONFIRMED.txt
+else
+  echo "NOT FOUND: /opt/providers/zipslip_CONFIRMED.txt"
+fi
 
-echo "--- proxy env in exec-loop parent ---"
-cat /proc/$PPID/environ 2>/dev/null | tr '\0' '\n' | grep -iE "proxy|tunnel" || echo "no proxy vars in parent"
+echo "--- check workdir for traversal marker ---"
+if [ -f "zipslip_proof.txt" ]; then
+  echo "WORKDIR TRAVERSAL: zipslip_proof.txt EXISTS in workdir"
+  cat zipslip_proof.txt
+else
+  echo "NOT FOUND: zipslip_proof.txt in workdir"
+fi
 
-echo "--- exec loop script content ---"
-head -30 /tmp/exec-loop/exec-*/script.sh 2>/dev/null || echo "cannot read exec loop"
-ls /tmp/exec-loop/ 2>/dev/null
+echo "--- list /opt/providers/ ---"
+ls -la /opt/providers/ 2>/dev/null | head -20 || echo "cannot list /opt/providers/"
 
-echo "--- agent python executable ---"
-ls -la /usr/bin/runner/usr/bin/python* 2>/dev/null | head -5 || echo "no runner python found"
-ls -la /usr/bin/runner/usr/lib/python3.13/site-packages/certifi/ 2>/dev/null | head -3
+echo "--- list /opt/providers-downloads/ ---"
+ls -la /opt/providers-downloads/ 2>/dev/null | head -10 || echo "cannot list /opt/providers-downloads/"
 
-echo "--- can write to tmp/exec-loop ---"
-ls -la /tmp/ | grep exec-loop
-ls -la /tmp/exec-loop/ 2>/dev/null | head -5
-
-echo "--- http via python without ssl verify ---"
-python3 -c "
-import urllib.request, ssl
-ctx = ssl.create_default_context()
-ctx.check_hostname = False
-ctx.verify_mode = ssl.CERT_NONE
-# Just prove we can make unverified HTTPS
-print('ssl module supports CERT_NONE:', ssl.CERT_NONE)
-" 2>&1
+echo "--- find all zipslip files ---"
+find /opt/ -name "zipslip*" 2>/dev/null
 
 echo "=== DONE ==="
