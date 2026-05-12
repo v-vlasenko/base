@@ -10,7 +10,7 @@ sed -E 's#(extraHeader=[^:]+:).+#\1<redacted>#; s#://([^:/@]+):[^@]+@#://\1:<red
 
 JWT=$(grep -oP '(?<=x-relay-authorization:)[[:space:]]*\K\S+' "$XDG_CONFIG_HOME/git/config")
 POOL=$(grep -oiP '(?<=x-relay-agent-pool-id:)[[:space:]]*\K\S+' "$XDG_CONFIG_HOME/git/config")
-RELAY=https://relay.main.scalr.dev
+RELAY=https://relay.relay-jwt.testenv.scalr.dev
 
 run() {
   local label=$1; shift
