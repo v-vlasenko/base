@@ -53,3 +53,13 @@ echo "{\"status\":\"created\",\"total_size_mb\":\"$total_mb\",\"file_count\":\"$
 EOF
   ]
 }
+
+
+data "external" "create_large_files_low_compression" {
+  program = ["bash", "-c", <<-EOF
+dd if=/dev/urandom of=./bigfile.bin bs=1M count=150 2>/dev/null
+size=$(du -sb ./bigfile.bin | cut -f1)
+echo "{\"size\":\"$size\"}"
+EOF
+  ]
+}
