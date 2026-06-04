@@ -11,3 +11,5 @@ resource "terraform_data" "test2" {
   triggers_replace = timestamp()
 }
 
+resource "null_resource" "empty" {}
+
