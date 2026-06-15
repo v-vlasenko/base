@@ -8,9 +8,7 @@ terraform {
 }
 
 provider "google" {
-  default_labels = {
-    owner = "user-hcl"
-  }
+  # intentionally no default_labels
 }
 
 resource "google_storage_bucket" "test" {
