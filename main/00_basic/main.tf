@@ -7,15 +7,10 @@ terraform {
   }
 }
 
-locals {
-  common_labels = {
-    owner = "user-dynamic"
-    team  = "platform"
-  }
-}
-
 provider "google" {
-  default_labels = local.common_labels
+  default_labels = {
+    owner = "user-hcl"
+  }
 }
 
 resource "google_storage_bucket" "test" {
