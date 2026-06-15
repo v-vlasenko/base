@@ -8,13 +8,11 @@ terraform {
 }
 
 provider "google" {
-  default_labels = {
-    owner = "user-hcl"
-  }
+  # no default_labels
 }
 
 resource "google_storage_bucket" "test" {
-  name          = "scalr-lbl-test-1781533670"
+  name          = "scalr-lbl-test-s21"
   location      = "US"
   force_destroy = true
 }
