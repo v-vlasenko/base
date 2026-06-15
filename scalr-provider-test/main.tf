@@ -9,69 +9,6 @@ terraform {
 
 provider "scalr" {}
 
-# UPDATE: changed labels + strategy on existing PC
-resource "scalr_provider_configuration" "google_labels_skip" {
-  name                   = "tf-provider-test-skip"
-  account_id             = "acc-svrcncgh453bi8g"
-  export_shell_variables = false
-
-  google {
-    credentials = var.google_credentials
-
-    default_labels {
-      labels = {
-        env     = "prod"
-        owner   = "scalr-tf-updated"
-        team    = "platform"
-        version = "v2"
-      }
-      strategy = "update"
-    }
-  }
-}
-
-# CREATE: Google PC with default_labels block + strategy update
-resource "scalr_provider_configuration" "google_labels_update" {
-  name                   = "tf-provider-test-update"
-  account_id             = "acc-svrcncgh453bi8g"
-  export_shell_variables = false
-
-  google {
-    credentials = var.google_credentials
-
-    default_labels {
-      labels = {
-        env   = "staging"
-        owner = "scalr-tf"
-      }
-      strategy = "update"
-    }
-  }
-}
-
-# CREATE: Google PC without default_labels block (no labels configured)
-resource "scalr_provider_configuration" "google_no_labels" {
-  name                   = "tf-provider-test-nolabels"
-  account_id             = "acc-svrcncgh453bi8g"
-  export_shell_variables = false
-
-  google {
-    credentials = var.google_credentials
-  }
-}
-
 variable "google_credentials" {
   sensitive = true
-}
-
-output "pcfg_skip_id" {
-  value = scalr_provider_configuration.google_labels_skip.id
-}
-
-output "pcfg_update_id" {
-  value = scalr_provider_configuration.google_labels_update.id
-}
-
-output "pcfg_no_labels_id" {
-  value = scalr_provider_configuration.google_no_labels.id
 }
