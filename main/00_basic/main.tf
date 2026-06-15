@@ -6,10 +6,17 @@ variable "input" {
   default = "default_value"
 }
 
-resource "terraform_data" "test2" {
-  input            = var.input
-  triggers_replace = timestamp()
+terraform {
+  required_providers {
+    google = {
+      source  = "hashicorp/google"
+      version = "~> 5.0"
+    }
+  }
+}
+
+provider "google" {
+  # no default_labels - PC labels should be injected
 }
 
 resource "null_resource" "empty" {}
-
