@@ -7,19 +7,17 @@ terraform {
   }
 }
 
-locals {
-  common_labels = {
-    owner = "user-dynamic"
-    team  = "platform"
-  }
+provider "google" {
+  # default provider — PC labels should patch this one
 }
 
 provider "google" {
-  default_labels = local.common_labels
+  alias = "europe"
+  # aliased provider — should NOT be patched by default PCFG link
 }
 
 resource "google_storage_bucket" "test" {
-  name          = "scalr-lbl-s22-scenario"
+  name          = "scalr-lbl-s23-scenario"
   location      = "US"
   force_destroy = true
 }
