@@ -8,16 +8,11 @@ terraform {
 }
 
 provider "google" {
-  # default provider — PC labels should patch this one
-}
-
-provider "google" {
-  alias = "europe"
-  # aliased provider — should NOT be patched by default PCFG link
+  # no default_labels
 }
 
 resource "google_storage_bucket" "test" {
-  name          = "scalr-lbl-s23-scenario"
+  name          = "scalr-lbl-s26-scenario"
   location      = "US"
   force_destroy = true
 }
