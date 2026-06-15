@@ -4,15 +4,26 @@ terraform {
       source  = "hashicorp/google"
       version = "~> 5.0"
     }
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
   }
 }
 
 provider "google" {
-  # no default_labels
+  # PC labels should inject here
+}
+
+provider "aws" {
+  region = "us-east-1"
+  default_tags {
+    tags = {}
+  }
 }
 
 resource "google_storage_bucket" "test" {
-  name          = "scalr-lbl-s26-scenario"
+  name          = "scalr-lbl-s28-scenario"
   location      = "US"
   force_destroy = true
 }
