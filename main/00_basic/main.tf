@@ -13,4 +13,10 @@ provider "google" {
   }
 }
 
+resource "google_storage_bucket" "test" {
+  name          = "scalr-label-test-37731"
+  location      = "US"
+  force_destroy = true
+}
+
 resource "null_resource" "empty" {}
