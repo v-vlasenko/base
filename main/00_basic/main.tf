@@ -1,11 +1,3 @@
-variable "resource_count" {
-  default = 1
-}
-
-variable "input" {
-  default = "default_value"
-}
-
 terraform {
   required_providers {
     google = {
@@ -16,7 +8,9 @@ terraform {
 }
 
 provider "google" {
-  # no default_labels - PC labels should be injected
+  default_labels = {
+    owner = "user-hcl"
+  }
 }
 
 resource "null_resource" "empty" {}
