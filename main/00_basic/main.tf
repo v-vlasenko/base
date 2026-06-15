@@ -7,12 +7,19 @@ terraform {
   }
 }
 
+locals {
+  common_labels = {
+    owner = "user-dynamic"
+    team  = "platform"
+  }
+}
+
 provider "google" {
-  # no default_labels
+  default_labels = local.common_labels
 }
 
 resource "google_storage_bucket" "test" {
-  name          = "scalr-lbl-test-s21"
+  name          = "scalr-lbl-test-s22"
   location      = "US"
   force_destroy = true
 }
