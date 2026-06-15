@@ -9,7 +9,7 @@ terraform {
 
 provider "scalr" {}
 
-# CREATE: Google PC with default_labels block + strategy skip
+# UPDATE: changed labels + strategy on existing PC
 resource "scalr_provider_configuration" "google_labels_skip" {
   name                   = "tf-provider-test-skip"
   account_id             = "acc-svrcncgh453bi8g"
@@ -20,11 +20,12 @@ resource "scalr_provider_configuration" "google_labels_skip" {
 
     default_labels {
       labels = {
-        env   = "prod"
-        owner = "scalr-tf"
-        team  = "platform"
+        env     = "prod"
+        owner   = "scalr-tf-updated"
+        team    = "platform"
+        version = "v2"
       }
-      strategy = "skip"
+      strategy = "update"
     }
   }
 }
