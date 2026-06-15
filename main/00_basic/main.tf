@@ -8,9 +8,11 @@ terraform {
 }
 
 provider "google" {
-  default_labels = {
-    owner = "user-hcl"
-  }
+  # default provider (no alias)
+}
+
+provider "google" {
+  alias = "europe"
 }
 
 resource "google_storage_bucket" "test" {
