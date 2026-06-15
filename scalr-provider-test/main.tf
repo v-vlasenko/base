@@ -9,48 +9,53 @@ terraform {
 
 provider "scalr" {}
 
-# CREATE: Google PC with default_labels and strategy skip
+# CREATE: Google PC with default_labels block + strategy skip
 resource "scalr_provider_configuration" "google_labels_skip" {
-  name           = "tf-provider-test-skip"
-  account_id     = "acc-svrcncgh453bi8g"
+  name                   = "tf-provider-test-skip"
+  account_id             = "acc-svrcncgh453bi8g"
   export_shell_variables = false
 
   google {
     credentials = var.google_credentials
-    default_labels = {
-      env   = "prod"
-      owner = "scalr-tf"
-      team  = "platform"
+
+    default_labels {
+      labels = {
+        env   = "prod"
+        owner = "scalr-tf"
+        team  = "platform"
+      }
+      strategy = "skip"
     }
-    default_label_strategy = "skip"
   }
 }
 
-# CREATE: Google PC with strategy update
+# CREATE: Google PC with default_labels block + strategy update
 resource "scalr_provider_configuration" "google_labels_update" {
-  name           = "tf-provider-test-update"
-  account_id     = "acc-svrcncgh453bi8g"
+  name                   = "tf-provider-test-update"
+  account_id             = "acc-svrcncgh453bi8g"
   export_shell_variables = false
 
   google {
     credentials = var.google_credentials
-    default_labels = {
-      env   = "staging"
-      owner = "scalr-tf"
+
+    default_labels {
+      labels = {
+        env   = "staging"
+        owner = "scalr-tf"
+      }
+      strategy = "update"
     }
-    default_label_strategy = "update"
   }
 }
 
-# CREATE: Google PC with empty labels
-resource "scalr_provider_configuration" "google_labels_empty" {
-  name           = "tf-provider-test-empty"
-  account_id     = "acc-svrcncgh453bi8g"
+# CREATE: Google PC without default_labels block (no labels configured)
+resource "scalr_provider_configuration" "google_no_labels" {
+  name                   = "tf-provider-test-nolabels"
+  account_id             = "acc-svrcncgh453bi8g"
   export_shell_variables = false
 
   google {
     credentials = var.google_credentials
-    default_labels = {}
   }
 }
 
@@ -66,6 +71,6 @@ output "pcfg_update_id" {
   value = scalr_provider_configuration.google_labels_update.id
 }
 
-output "pcfg_empty_id" {
-  value = scalr_provider_configuration.google_labels_empty.id
+output "pcfg_no_labels_id" {
+  value = scalr_provider_configuration.google_no_labels.id
 }
