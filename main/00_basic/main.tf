@@ -19,7 +19,7 @@ provider "google" {
 }
 
 resource "google_storage_bucket" "test" {
-  name          = "scalr-lbl-test-s22"
+  name          = "scalr-lbl-1781534219"
   location      = "US"
   force_destroy = true
 }
