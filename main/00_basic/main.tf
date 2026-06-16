@@ -20,6 +20,11 @@ variable "final_val" {
   default = "default_final"
 }
 
+variable "empty_sensitive" {
+  sensitive = true
+  default   = ""
+}
+
 resource "terraform_data" "test2" {
   input            = var.input
   triggers_replace = timestamp()
