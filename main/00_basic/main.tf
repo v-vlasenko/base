@@ -25,6 +25,11 @@ variable "empty_sensitive" {
   default   = ""
 }
 
+variable "auto_only" {
+  default = "tf_default"
+  description = "Only set in auto.tfvars, not in Scalr vars"
+}
+
 resource "terraform_data" "test2" {
   input            = var.input
   triggers_replace = timestamp()
