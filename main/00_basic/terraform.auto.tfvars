@@ -1,1 +1,1 @@
-resource_count = 42
+auto_only = "auto_tfvars_value"
