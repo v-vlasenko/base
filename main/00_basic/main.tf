@@ -11,6 +11,15 @@ variable "secret_val" {
   default   = ""
 }
 
+variable "servers" {
+  type    = list(string)
+  default = []
+}
+
+variable "final_val" {
+  default = "default_final"
+}
+
 resource "terraform_data" "test2" {
   input            = var.input
   triggers_replace = timestamp()
