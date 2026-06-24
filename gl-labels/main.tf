@@ -13,21 +13,34 @@ variable "team" {
 }
 
 locals {
-  common_labels = {
-    team        = var.team
-    env         = "user_value"
-    dynamic_key = "resolved_dynamically"
+  common = {
+    team = var.team
+    env  = "user_value"
   }
 }
 
 provider "google" {
   project        = "fluent-cyclist-443522-q4"
   region         = "us-central1"
-  default_labels = merge(local.common_labels, { extra = "merged_${var.team}" })
+  default_labels = merge(local.common, { extra = "merged_${var.team}" })
 }
 
-data "google_client_config" "observe" {}
+provider "google" {
+  alias          = "europe"
+  project        = "fluent-cyclist-443522-q4"
+  region         = "europe-west1"
+  default_labels = { geo = "user_eu", squad = local.common.team }
+}
 
-output "effective_default_labels" {
-  value = data.google_client_config.observe.default_labels
+data "google_client_config" "default" {}
+data "google_client_config" "europe" {
+  provider = google.europe
+}
+
+output "default_labels" {
+  value = data.google_client_config.default.default_labels
+}
+
+output "europe_labels" {
+  value = data.google_client_config.europe.default_labels
 }
