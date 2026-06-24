@@ -2,27 +2,19 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = "5.43.0"
+      version = "~> 6.0"
     }
   }
 }
 
-variable "team" {
-  type    = string
-  default = "core"
-}
-
 locals {
-  common_labels = {
-    team = var.team
-    env  = "user_value"
-  }
+  common = { team = "core", env = "s23" }
 }
 
 provider "google" {
   project        = "fluent-cyclist-443522-q4"
   region         = "us-central1"
-  default_labels = merge(local.common_labels, { extra = "merged_${var.team}" })
+  default_labels = merge(local.common, { scenario = "no_pcfg" })
 }
 
 data "google_client_config" "default" {}
