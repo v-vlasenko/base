@@ -6,6 +6,10 @@ variable "input" {
   default = "default_value"
 }
 
+variable "check" {
+  default = 1
+}
+
 resource "terraform_data" "test2" {
   input            = var.input
   triggers_replace = timestamp()
