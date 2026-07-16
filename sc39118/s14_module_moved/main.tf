@@ -30,7 +30,12 @@ resource "random_id" "suffix" {
   byte_length = 4
 }
 
-module "foo" {
-  source = "./modules/foo"
+module "bar" {
+  source = "./modules/bar"
   suffix = random_id.suffix.hex
+}
+
+moved {
+  from = module.foo
+  to   = module.bar
 }
