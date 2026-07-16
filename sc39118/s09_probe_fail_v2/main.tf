@@ -22,10 +22,7 @@ locals {
 provider "aws" {
   region = "us-east-1"
   default_tags {
-    # Deliberately references an undefined local to force Terraform's own
-    # evaluator to reject this expression at plan time (a genuine, non-`moved`
-    # reason for a plan to fail) - not a sentinel value like +Inf.
-    tags = merge(local.base_tags, local.does_not_exist, { Extra = var.extra_tag })
+    tags = merge(local.base_tags, { Extra = var.extra_tag })
   }
 }
 
