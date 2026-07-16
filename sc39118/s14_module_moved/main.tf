@@ -9,7 +9,7 @@ terraform {
 
 variable "extra_tag" {
   type    = string
-  default = "team-s14"
+  default = "team-s14-v2"
 }
 
 locals {
