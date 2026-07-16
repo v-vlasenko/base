@@ -30,14 +30,29 @@ resource "random_id" "suffix" {
   byte_length = 4
 }
 
-resource "aws_s3_bucket" "old_a" {
+resource "aws_s3_bucket" "new_a" {
   bucket = "sc39118-s03-a-${random_id.suffix.hex}"
 }
 
-resource "aws_s3_bucket" "old_b" {
+resource "aws_s3_bucket" "new_b" {
   bucket = "sc39118-s03-b-${random_id.suffix.hex}"
 }
 
-resource "aws_s3_bucket" "old_c" {
+resource "aws_s3_bucket" "new_c" {
   bucket = "sc39118-s03-c-${random_id.suffix.hex}"
+}
+
+moved {
+  from = aws_s3_bucket.old_a
+  to   = aws_s3_bucket.new_a
+}
+
+moved {
+  from = aws_s3_bucket.old_b
+  to   = aws_s3_bucket.new_b
+}
+
+moved {
+  from = aws_s3_bucket.old_c
+  to   = aws_s3_bucket.new_c
 }

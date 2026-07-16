@@ -42,11 +42,21 @@ resource "random_id" "suffix" {
   byte_length = 4
 }
 
-resource "aws_s3_bucket" "old_us" {
+resource "aws_s3_bucket" "new_us" {
   bucket = "sc39118-s04-us-${random_id.suffix.hex}"
 }
 
-resource "aws_s3_bucket" "old_eu" {
+resource "aws_s3_bucket" "new_eu" {
   provider = aws.eu
   bucket   = "sc39118-s04-eu-${random_id.suffix.hex}"
+}
+
+moved {
+  from = aws_s3_bucket.old_us
+  to   = aws_s3_bucket.new_us
+}
+
+moved {
+  from = aws_s3_bucket.old_eu
+  to   = aws_s3_bucket.new_eu
 }

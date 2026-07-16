@@ -30,6 +30,11 @@ resource "random_id" "suffix" {
   byte_length = 4
 }
 
-resource "aws_s3_bucket" "old" {
+resource "aws_s3_bucket" "new" {
   bucket = "sc39118-tofu-${random_id.suffix.hex}"
+}
+
+moved {
+  from = aws_s3_bucket.old
+  to   = aws_s3_bucket.new
 }
