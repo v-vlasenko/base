@@ -30,7 +30,3 @@ resource "random_id" "suffix" {
 resource "aws_s3_bucket" "keep" {
   bucket = "sc39118-s08-keep-${random_id.suffix.hex}"
 }
-
-resource "aws_s3_bucket" "remove_me" {
-  bucket = "sc39118-s08-removeme-${random_id.suffix.hex}"
-}

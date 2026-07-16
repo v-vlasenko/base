@@ -41,8 +41,13 @@ resource "random_id" "suffix" {
   byte_length = 4
 }
 
-resource "aws_s3_bucket" "a" {
+resource "aws_s3_bucket" "b" {
   bucket = "sc39118-a-${random_id.suffix.hex}"
+}
+
+moved {
+  from = aws_s3_bucket.a
+  to   = aws_s3_bucket.b
 }
 
 resource "aws_s3_bucket" "c" {
