@@ -42,7 +42,7 @@ moved {
 # addresses to the probe's -target list.
 import {
   to = aws_s3_bucket.imported
-  id = "does-not-exist-in-aws-${random_id.suffix.hex}"
+  id = "sc39118-s16-does-not-exist-in-aws"
 }
 
 resource "aws_s3_bucket" "imported" {
