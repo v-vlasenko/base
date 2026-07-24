@@ -13,7 +13,7 @@ terraform {
 
   backend "s3" {
     bucket = "scalr-e2e-tg-test"
-    key    = "sc39070/s8-mem/3022013002/terraform.tfstate"
+    key    = "sc39070/s8-mem/739313888/terraform.tfstate"
     region = "us-east-1"
   }
 }
