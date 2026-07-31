@@ -21,5 +21,9 @@ output "sg_id" {
 }
 
 output "state_marker" {
-  value = "master-branch-base"
+  value = "pr-branch-change"
+}
+
+output "pr_test" {
+  value = "this output was added in a PR"
 }
