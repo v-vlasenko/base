@@ -21,5 +21,9 @@ output "sg_id" {
 }
 
 output "state_marker" {
-  value = "master-branch-base"
+  value = "pr-branch-opentofu-test"
+}
+
+output "pr_test" {
+  value = "testing dry plan state push with OpenTofu"
 }
