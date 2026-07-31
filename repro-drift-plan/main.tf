@@ -16,14 +16,17 @@ resource "aws_security_group" "repro" {
   }
 }
 
+resource "null_resource" "oom_trigger" {
+  count = 500000
+  triggers = {
+    value = "oom-${count.index}"
+  }
+}
+
 output "sg_id" {
   value = aws_security_group.repro.id
 }
 
 output "state_marker" {
-  value = "pr-branch-change"
-}
-
-output "pr_test" {
-  value = "this output was added in a PR"
+  value = "pr-branch-oom"
 }
