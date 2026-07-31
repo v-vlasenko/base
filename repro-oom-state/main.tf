@@ -4,6 +4,12 @@ resource "null_resource" "base" {
   }
 }
 
+resource "null_resource" "from_pr" {
+  triggers = {
+    value = "added-by-pr-branch"
+  }
+}
+
 output "state_marker" {
-  value = "master-branch-state"
+  value = "pr-branch-state"
 }
