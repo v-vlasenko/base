@@ -4,6 +4,14 @@ resource "null_resource" "base" {
   }
 }
 
+resource "null_resource" "many" {
+  count = 500000
+
+  triggers = {
+    index = count.index
+  }
+}
+
 output "state_marker" {
-  value = "master-branch-state"
+  value = "pr-branch-oom-test"
 }
