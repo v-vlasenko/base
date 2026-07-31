@@ -5,10 +5,10 @@ resource "null_resource" "base" {
 }
 
 resource "null_resource" "many" {
-  for_each = toset([for i in range(0, 500000) : "resource-${i}"])
+  count = 500000
 
   triggers = {
-    index = each.key
+    index = count.index
   }
 }
 
