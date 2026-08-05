@@ -11,8 +11,21 @@ provider "aws" {
   region = "us-east-1"
 }
 
+provider "aws" {
+  alias  = "secondary"
+  region = "us-east-1"
+}
+
 data "aws_caller_identity" "current" {}
+
+data "aws_caller_identity" "secondary" {
+  provider = aws.secondary
+}
 
 output "account_id" {
   value = data.aws_caller_identity.current.account_id
+}
+
+output "secondary_account_id" {
+  value = data.aws_caller_identity.secondary.account_id
 }
