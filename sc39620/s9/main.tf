@@ -26,3 +26,9 @@ provider "aws" {
 resource "aws_s3_bucket" "untouched" {}
 
 output "untouched_tags_all" { value = aws_s3_bucket.untouched.tags_all }
+
+# Item 9: no default and no workspace value, so `plan -input=false` fails with
+# "No value for required variable" - a probe failure unrelated to targeting.
+variable "unset_required" {
+  type = string
+}
