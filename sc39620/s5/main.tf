@@ -25,9 +25,7 @@ provider "aws" {
 
 resource "aws_s3_bucket" "untouched" {}
 
-resource "aws_s3_bucket" "movable" {
-  count = 1
-}
+resource "aws_s3_bucket" "movable" {}
 
 output "untouched_tags_all" { value = aws_s3_bucket.untouched.tags_all }
-output "movable_tags_all" { value = aws_s3_bucket.movable[*].tags_all }
+output "movable_tags_all" { value = aws_s3_bucket.movable.tags_all }

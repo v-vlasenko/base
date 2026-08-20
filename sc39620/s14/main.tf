@@ -39,8 +39,10 @@ resource "aws_s3_bucket" "untouched_second" {
   provider = aws.second
 }
 
-resource "aws_s3_bucket" "movable" {}
+resource "aws_s3_bucket" "movable" {
+  count = 1
+}
 
 output "untouched_tags_all" { value = aws_s3_bucket.untouched.tags_all }
 output "untouched_second_tags_all" { value = aws_s3_bucket.untouched_second.tags_all }
-output "movable_tags_all" { value = aws_s3_bucket.movable.tags_all }
+output "movable_tags_all" { value = aws_s3_bucket.movable[*].tags_all }
