@@ -16,6 +16,8 @@ provider "aws" {
   region = "us-east-1"
 }
 
+resource "null_resource" "config_sync" {}
+
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
