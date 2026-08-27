@@ -3,12 +3,16 @@ terraform {
 }
 
 remote_state {
-  backend = "local"
+  backend = "remote"
   generate = {
     path      = "backend.tf"
     if_exists = "overwrite_terragrunt"
   }
   config = {
-    path = "terraform.tfstate"
+    hostname     = "mainiacp.agent-test.testenv.scalr.dev"
+    organization = "tfenv1"
+    workspaces = {
+      name = "s39803-tg-state-b"
+    }
   }
 }
