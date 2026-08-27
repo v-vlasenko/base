@@ -1,19 +1,7 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
-  }
+resource "terraform_data" "unit_b" {
+  input = "unit-b"
 }
 
-provider "aws" {
-  region = "us-east-1"
-}
-
-data "aws_caller_identity" "current" {}
-data "aws_region" "current" {}
-
-output "region" {
-  value = data.aws_region.current.name
+output "unit" {
+  value = terraform_data.unit_b.output
 }
