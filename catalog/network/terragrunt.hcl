@@ -7,7 +7,6 @@ dependency "foundation" {
   mock_outputs = {
     name_prefix = "mock-prefix"
   }
-  mock_outputs_allowed_terraform_commands = ["validate", "plan", "init", "refresh"]
 }
 
 inputs = {

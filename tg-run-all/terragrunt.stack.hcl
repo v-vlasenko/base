@@ -1,35 +1,35 @@
 unit "foundation" {
-  source = "./units/foundation"
+  source = "../catalog/foundation"
   path   = "foundation"
 }
 
 unit "network" {
-  source = "./units/network"
+  source = "../catalog/network"
   path   = "network"
 }
 
 unit "firewall" {
-  source = "./units/firewall"
+  source = "../catalog/firewall"
   path   = "firewall"
 }
 
 unit "secrets" {
-  source = "./units/secrets"
+  source = "../catalog/secrets"
   path   = "secrets"
 }
 
 unit "certs" {
-  source = "./units/certs"
+  source = "../catalog/certs"
   path   = "certs"
 }
 
 unit "audit" {
-  source = "./units/audit"
+  source = "../catalog/audit"
   path   = "audit"
 }
 
 unit "config" {
-  source = "./units/config"
+  source = "../catalog/config"
   path   = "config"
 }
 
