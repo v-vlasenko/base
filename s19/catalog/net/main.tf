@@ -1,0 +1,17 @@
+terraform {
+  backend "remote" {
+    hostname     = "mainiacp.stack.testenv.scalr.dev"
+    organization = "tfenv1"
+    workspaces {
+      name = "s19vcs-net-1788382171"
+    }
+  }
+}
+
+resource "random_pet" "net" {
+  length = 2
+}
+
+output "id" {
+  value = random_pet.net.id
+}
