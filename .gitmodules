@@ -1,3 +1,0 @@
-[submodule "config_tests/git_submodules/git-submodule"]
-	path = config_tests/git_submodules/git-submodule
-	url = https://github.com/aleatoricmbnt/git-submodule

@@ -1,6 +1,0 @@
-{
-    "str":"John",
-    "num":30,
-    "num_neg": -80,
-    "list": ["Zero", "One", "Two"]
-}

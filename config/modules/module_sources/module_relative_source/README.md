@@ -1,1 +1,0 @@
-Set varfiles to `CV_tests/module_relative_source/variables/my.tfvars` and `CV_tests/tfvars/my.tfvars`

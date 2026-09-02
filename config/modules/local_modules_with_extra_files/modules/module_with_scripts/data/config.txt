@@ -1,3 +1,0 @@
-Configuration data for module_with_scripts
-This is a plain text data file.
-It should persist between plan and apply operations.

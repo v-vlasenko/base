@@ -1,4 +1,0 @@
-string one with whitespaces
-string_two
-some_other_string
-some_thing_here

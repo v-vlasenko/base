@@ -1,5 +1,0 @@
-# Some title
-
-```
-some code
-```

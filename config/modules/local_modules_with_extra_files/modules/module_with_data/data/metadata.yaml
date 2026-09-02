@@ -1,7 +1,0 @@
-module: module_with_data
-description: Module containing various data files
-files:
-  - config.json
-  - users.csv
-  - metadata.yaml
-test: This YAML file should persist between plan and apply

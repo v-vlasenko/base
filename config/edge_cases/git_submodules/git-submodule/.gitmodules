@@ -1,6 +1,0 @@
-[submodule "git-nested-00"]
-	path = git-nested-00
-	url = https://github.com/aleatoricmbnt/git-nested-00
-[submodule "git-nested-01"]
-	path = git-nested-01
-	url = https://github.com/aleatoricmbnt/git-nested-01
