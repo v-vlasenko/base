@@ -1,5 +1,5 @@
 resource "random_pet" "producer" {
-  length = 3
+  length = 2
 }
 output "pet" {
   value = random_pet.producer.id

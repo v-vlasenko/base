@@ -1,4 +1,4 @@
 unit "consumer" {
-  source = "./units/consumer"
+  source = "../_src34/consumer"
   path   = "consumer"
 }
