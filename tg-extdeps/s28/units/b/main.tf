@@ -1,4 +1,13 @@
 terraform {
+  backend "remote" {
+    hostname     = "mainiacp.stack.testenv.scalr.dev"
+    organization = "tfenv1"
+    workspaces {
+      name = "extbe-1788439157-s28-b"
+    }
+  }
+}
+terraform {
   required_providers {
     random = {
       source  = "hashicorp/random"

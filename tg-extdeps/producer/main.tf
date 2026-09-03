@@ -1,3 +1,12 @@
+terraform {
+  backend "remote" {
+    hostname     = "mainiacp.stack.testenv.scalr.dev"
+    organization = "tfenv1"
+    workspaces {
+      name = "extbe-1788439157-s34-producer"
+    }
+  }
+}
 resource "random_pet" "producer" {
   length = 2
 }
