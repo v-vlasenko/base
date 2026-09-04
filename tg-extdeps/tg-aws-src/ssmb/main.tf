@@ -3,7 +3,7 @@ terraform {
     hostname     = "mainiacp.stack.testenv.scalr.dev"
     organization = "tfenv1"
     workspaces {
-      name = "awsbe-1788454078-ssmb"
+      name = "awsbe-1788501176-ssmb"
     }
   }
   required_providers {
@@ -17,7 +17,7 @@ provider "aws" {
   region = "us-east-1"
 }
 resource "aws_ssm_parameter" "test" {
-  name  = "/scalr-tg-stack-test/1788454078/b"
+  name  = "/scalr-tg-stack-test/1788501176/b"
   type  = "String"
   tier  = "Standard"
   value = "scalr-tg-stack-free-test"
