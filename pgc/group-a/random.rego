@@ -43,3 +43,5 @@ deny[reason] {
 # item18
 
 # item20 vcs outage
+
+# item20b vcs outage
