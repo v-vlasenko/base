@@ -39,3 +39,5 @@ deny[reason] {
 # item13b delete group_c mid-flight
 
 # item13c unlink+delete group_c mid-flight
+
+# item18
