@@ -25,3 +25,5 @@ deny[reason] {
 # item3 celery path
 
 # item10 in-flight retrigger
+
+# item7 timeout 60s
