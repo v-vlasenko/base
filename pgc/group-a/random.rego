@@ -29,3 +29,5 @@ deny[reason] {
 # item7 timeout 60s
 
 # item8 kill agent pod
+
+# item8b fresh dispatch after kill
