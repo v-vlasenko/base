@@ -1,10 +1,6 @@
 package terraform
-import input.tfrun as tfrun
 
-bool_value = false
-
+# PR impact analysis: previously advisory-pass, now deny everything
 deny[reason] {
-    check := bool_value
-    check == true
-    reason := "This policy should be passed in any case."
-}# marker 2026-09-21T10:06:13Z item1-first-agent-check
+  reason := "pr1: advisory policy now fails for every workspace"
+}
