@@ -41,3 +41,5 @@ deny[reason] {
 # item13c unlink+delete group_c mid-flight
 
 # item18
+
+# item20 vcs outage
