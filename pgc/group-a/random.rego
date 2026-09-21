@@ -35,3 +35,5 @@ deny[reason] {
 # item12 unlink env mid-flight
 
 # item12b unlink env via PATCH
+
+# item13b delete group_c mid-flight
