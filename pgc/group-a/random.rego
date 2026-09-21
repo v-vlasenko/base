@@ -31,3 +31,5 @@ deny[reason] {
 # item8 kill agent pod
 
 # item8b fresh dispatch after kill
+
+# item12 unlink env mid-flight
