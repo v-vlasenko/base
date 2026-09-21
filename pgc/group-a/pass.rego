@@ -4,3 +4,4 @@ package terraform
 deny[reason] {
   reason := "pr1: advisory policy now fails for every workspace"
 }
+# marker 2026-09-21T14:38:27Z item1-multi-env
