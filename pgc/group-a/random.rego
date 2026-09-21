@@ -23,3 +23,5 @@ deny[reason] {
 # item4 touch both groups
 
 # item3 celery path
+
+# item10 in-flight retrigger
