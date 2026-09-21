@@ -1,7 +1,7 @@
 version = "v1"
 
 policy "random" {
-  enabled           = true
+  enabled           = false
   enforcement_level = "hard-mandatory"
 }
 
