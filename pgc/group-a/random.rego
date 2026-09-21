@@ -33,3 +33,5 @@ deny[reason] {
 # item8b fresh dispatch after kill
 
 # item12 unlink env mid-flight
+
+# item12b unlink env via PATCH
