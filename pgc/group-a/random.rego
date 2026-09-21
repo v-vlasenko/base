@@ -47,3 +47,5 @@ deny[reason] {
 # item20b vcs outage
 
 # item9 old agent 1.6.0
+
+# item9b agent restored
