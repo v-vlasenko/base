@@ -27,3 +27,5 @@ deny[reason] {
 # item10 in-flight retrigger
 
 # item7 timeout 60s
+
+# item8 kill agent pod
