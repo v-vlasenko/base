@@ -21,3 +21,5 @@ deny[reason] {
     )
 }
 # item4 touch both groups
+
+# item3 celery path
