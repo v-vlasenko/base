@@ -20,3 +20,4 @@ deny[reason] {
         [number]
     )
 }
+# item4 touch both groups
