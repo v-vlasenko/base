@@ -45,3 +45,5 @@ deny[reason] {
 # item20 vcs outage
 
 # item20b vcs outage
+
+# item9 old agent 1.6.0
