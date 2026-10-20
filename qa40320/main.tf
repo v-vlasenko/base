@@ -18,3 +18,5 @@ provider "aws" {
 }
 
 resource "null_resource" "n" {}
+
+# qa40320 PR change
