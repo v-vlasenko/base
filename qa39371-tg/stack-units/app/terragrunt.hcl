@@ -8,7 +8,6 @@ dependency "net" {
   mock_outputs = {
     prefix = "mock-network"
   }
-  mock_outputs_allowed_terraform_commands = ["init", "validate", "plan"]
 }
 
 inputs = {

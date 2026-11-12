@@ -8,7 +8,6 @@ dependency "network" {
   mock_outputs = {
     prefix = "mock-network"
   }
-  mock_outputs_allowed_terraform_commands = ["init", "validate", "plan"]
 }
 
 dependency "shared" {
@@ -17,7 +16,6 @@ dependency "shared" {
   mock_outputs = {
     log_group_name = "mock-shared"
   }
-  mock_outputs_allowed_terraform_commands = ["init", "validate", "plan"]
 }
 
 inputs = {
