@@ -1,6 +1,6 @@
 package terraform
 
 deny[reason] {
-    1 > 2
-    reason := "qa37302 pg2 never"
+    true
+    reason := "qa37302 PR deny"
 }
