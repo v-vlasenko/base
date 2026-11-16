@@ -1,6 +1,6 @@
 version = "v1"
 
-policy "pin_v150" {
+policy "develop_head" {
   enabled           = true
   enforcement_level = "advisory"
 }
