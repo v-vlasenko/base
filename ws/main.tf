@@ -1,13 +1,13 @@
 variable "sleep" {
   type    = string
-  default = "1s"
+  default = "0"
 }
 
-resource "time_sleep" "wait" {
-  create_duration = var.sleep
-  triggers        = { t = timestamp() }
+data "external" "sleep" {
+  program = ["bash", "-c", "sleep ${var.sleep}; echo '{\"ok\":\"1\"}'"]
 }
 
 resource "terraform_data" "this" {
+  input            = data.external.sleep.result.ok
   triggers_replace = timestamp()
 }
