@@ -19,3 +19,8 @@ policy "disabled_one" {
   enabled           = false
   enforcement_level = "hard-mandatory"
 }
+
+policy "unit_a_only" {
+  enabled           = true
+  enforcement_level = "soft-mandatory"
+}
