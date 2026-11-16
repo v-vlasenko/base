@@ -14,3 +14,10 @@ generate "backend" {
     }
   EOT
 }
+
+terraform {
+  extra_arguments "qa_no_lock" {
+    commands  = ["plan", "apply"]
+    arguments = ["-lock=false"]
+  }
+}
