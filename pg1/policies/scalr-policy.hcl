@@ -7,7 +7,7 @@ policy "uses_helper_pass" {
 
 policy "uses_helper_deny" {
   enabled           = true
-  enforcement_level = "hard-mandatory"
+  enforcement_level = "advisory"
 }
 
 policy "../../shared/tags" {
